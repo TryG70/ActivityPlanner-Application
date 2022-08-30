@@ -7,9 +7,11 @@ import com.example.activityplanner.model.User;
 
 import java.util.List;
 
-public interface UserServer {
+public interface UserService {
 
     User signUp(UserDTO userDTO);
+
+    User getUserByEmail(String email);
 
     String login(String email, String password);
 
@@ -17,13 +19,13 @@ public interface UserServer {
 
     List<Task> viewAllTasks();
 
-    Task viewParticularTask(int id);
-
     List<Task> viewTasksByStatus(String status);
 
-    Task editTask (TaskDTO taskDTO);
+    Task editTask (TaskDTO taskDTO, int id);
 
     boolean deleteTask(int id);
+
+    Task getTaskById (int id);
 
 
 }
