@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Controller
-@RequestMapping("/tancShoes")
+@RequestMapping("")
 public class UserController {
 
     private final UserService userService;
@@ -73,7 +73,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/task/{status}")
-    public String AllTaskByStatusPage(@PathVariable(name = "status") String status, Model model) {
+    public String AllTaskByStatus(@PathVariable(name = "status") String status, Model model) {
 
         List<Task> taskList = userService.viewTasksByStatus(status);
         model.addAttribute("allTasksByStatus", taskList);

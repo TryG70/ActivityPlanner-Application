@@ -88,6 +88,11 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+
+    public boolean updateTaskStatus(String status, int id){
+        return taskRepository.updateTaskByIdAndStatus(status , id);
+    }
+
     public User getUserByEmail (String email) {
         return userRepository.findUserByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
     }

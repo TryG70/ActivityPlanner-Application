@@ -27,5 +27,7 @@ public interface UserService {
 
     Task getTaskById (int id);
 
+    boolean updateTaskStatus(String status, int id);
+
 
 }
