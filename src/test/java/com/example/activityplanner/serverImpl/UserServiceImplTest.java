@@ -2,10 +2,12 @@ package com.example.activityplanner.serverImpl;
 
 import com.example.activityplanner.dto.TaskDTO;
 import com.example.activityplanner.dto.UserDTO;
+import com.example.activityplanner.exception.UserNotFoundException;
 import com.example.activityplanner.model.Task;
 import com.example.activityplanner.model.User;
 import com.example.activityplanner.repository.TaskRepository;
 import com.example.activityplanner.repository.UserRepository;
+import com.example.activityplanner.serverImpl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,9 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Calendar.AUGUST;
+import static java.time.Month.AUGUST;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class UserServiceImplTest {
@@ -37,33 +40,32 @@ class UserServiceImplTest {
     private UserDTO userDTO;
     private TaskDTO taskDTO;
     private Task task;
-    private LocalDateTime time;
+    private  LocalDateTime time;
     List<Task> taskList;
-
     @BeforeEach
     void setUp() {
-
         time = LocalDateTime.of(2022, AUGUST,3,6,30,40,50000);
         taskList = new ArrayList<>();
         taskList.add(task);
         this.user = new User(1, "Vincent" , "enwerevincent@gmail.com" , "12345" , taskList);
         this.task = new Task(1, "Write Code" , "Code till 7am" , "pending" , time , time , time , user);
-        this.taskDTO = new TaskDTO("Write Code" , "Code till 7am" );
+        this.taskDTO = new TaskDTO("Write Code" , "Code till 7am" , "pending" , 1);
         this.userDTO = new UserDTO("vincent" , "enwerevincent@gmail.com", "12345");
         when(userRepository.save(user)).thenReturn(user);
         when(taskRepository.save(task)).thenReturn(task);
         when(taskRepository.findAll()).thenReturn(taskList);
-        when(taskRepository.getAllTasksByStatus("pending")).thenReturn(taskList);
+//        when(taskRepository.listOfTasksByStatus("pending")).thenReturn(taskList);
         // when(taskRepository.(1)).thenReturn(Optional.ofNullable())
         when(userRepository.findById(1)).thenReturn(Optional.ofNullable(user));
         when(taskRepository.findById(1)).thenReturn(Optional.ofNullable(task));
         when(userRepository.findUserByEmail("enwerevincent@gmail.com")).thenReturn(Optional.of(user));
-        when(taskRepository.updateTaskByIdAndStatus("ongoing" , 1)).thenReturn(true);
+        when(taskRepository.updateTaskByIdAndStatus("ongoing" , 1)).thenReturn(1);
+        when(taskRepository.getAllTasksByStatus(1 , "pending")).thenReturn(taskList);
+
     }
 
     @Test
-    void signUp() {
-
+    void registerUser() {
         when(userServiceImpl.signUp(userDTO)).thenReturn(user);
         var actual = userServiceImpl.signUp(userDTO);
         var expected = user;
@@ -71,16 +73,17 @@ class UserServiceImplTest {
     }
 
     @Test
-    void loginUser_Successful() {
+    void loginUser_Successfull() {
         String message = "successful";
         assertEquals(message , userServiceImpl.login("enwerevincent@gmail.com" , "12345"));
     }
 
     @Test
-    void loginUser_Unsuccessful() {
+    void loginUser_Unsuccessfull() {
         String message = "incorrect password";
         assertEquals(message , userServiceImpl.login("enwerevincent@gmail.com" , "1234"));
     }
+
 
     @Test
     void createTask() {
@@ -89,22 +92,30 @@ class UserServiceImplTest {
     }
 
     @Test
+    void updateTitleAndDescription() {
+        assertEquals(task , userServiceImpl.editTask(taskDTO , 1));
+    }
+
+    @Test
     void viewAllTasks() {
         assertEquals(1 , userServiceImpl.viewAllTasks().size());
     }
 
     @Test
-    void viewTasksByStatus() {
-        assertEquals(taskList , userServiceImpl.viewTasksByStatus("pending"));
+    void viewAllTaskByStatus() {
+
+        assertEquals(taskList , userServiceImpl.viewTasksByStatus(1, "pending"));
     }
 
     @Test
-    void editTask() {
-        assertEquals(task , userServiceImpl.editTask(taskDTO , 1));
+    void deleteById() {
+        userServiceImpl.deleteTask(1);
+        verify(taskRepository).deleteById(any());
     }
 
 //    @Test
-//    void deleteTask() {
+//    void updateTaskStatus() {
+//        assertTrue(userServiceImpl.updateTaskStatus("ongoing" , 1));
 //    }
 
     @Test
@@ -113,12 +124,12 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getTaskById() {
-        assertEquals(task, userServiceImpl.getTaskById(1));
+    void getUserByEmail_ThrowsUserNotFoundException()  throws UserNotFoundException {
+        assertThrows( UserNotFoundException.class, ()->  userServiceImpl.getUserByEmail("enwerevient@gmail.com"));
     }
 
     @Test
-    void updateTaskStatus() {
-        assertTrue(userServiceImpl.updateTaskStatus("ongoing" , 1));
+    void getTaskById() {
+        assertEquals(task, userServiceImpl.getTaskById(1));
     }
 }

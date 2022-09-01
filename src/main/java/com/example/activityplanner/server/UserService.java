@@ -17,17 +17,19 @@ public interface UserService {
 
     Task createTask(TaskDTO taskDTO);
 
-    List<Task> viewAllTasks();
+    List<Task> viewAllUserTasks(Integer id);
 
-    List<Task> viewTasksByStatus(String status);
+    List<Task> viewTasksByStatus(int userId, String status);
 
     Task editTask (TaskDTO taskDTO, int id);
 
-    boolean deleteTask(int id);
+    void deleteTask(int id);
 
     Task getTaskById (int id);
 
-    boolean updateTaskStatus(String status, int id);
+    int updateTaskStatus(String status, int id);
+
+    Task markTaskCompleted(int id);
 
 
 }

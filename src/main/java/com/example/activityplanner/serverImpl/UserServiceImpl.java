@@ -12,7 +12,9 @@ import com.example.activityplanner.server.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -56,20 +58,25 @@ public class UserServiceImpl implements UserService {
 
         Task task = new Task();
         task.setTitle(taskDTO.getTitle());
+        task.setStatus(taskDTO.getStatus());
+        User user = getUserById(taskDTO.getUserId());
+        task.setUser(user);
         task.setDescription(taskDTO.getDescription());
-
         return taskRepository.save(task);
-
     }
 
+
+    public List<Task> viewAllUserTasks(Integer id) {
+        return taskRepository.findAllByUser_id(id);
+    }
 
     public List<Task> viewAllTasks() {
         return taskRepository.findAll();
     }
 
 
-    public List<Task> viewTasksByStatus(String status) {
-        return taskRepository.getAllTasksByStatus(status);
+    public List<Task> viewTasksByStatus(int userId, String status) {
+        return taskRepository.getAllTasksByStatus(userId, status);
     }
 
 
@@ -83,13 +90,13 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public boolean deleteTask(int id) {
+    public void deleteTask(int id) {
+
         taskRepository.deleteById(id);
-        return true;
     }
 
 
-    public boolean updateTaskStatus(String status, int id){
+    public int updateTaskStatus(String status, int id){
         return taskRepository.updateTaskByIdAndStatus(status , id);
     }
 
@@ -99,5 +106,19 @@ public class UserServiceImpl implements UserService {
 
     public Task getTaskById (int id) {
         return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found"));
+    }
+
+
+    public Task markTaskCompleted(int id){
+        Task task = getTaskById(id);
+        if (task.getStatus().equals("inprogress")){
+            task.setCompletedAt(LocalDateTime.now());
+            task.setStatus("completed");
+        }
+        return  taskRepository.save(task);
+    }
+
+    public User getUserById(int id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 }

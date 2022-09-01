@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Controller
-@RequestMapping("")
+@RequestMapping("/user")
 public class UserController {
 
     private final UserService userService;
@@ -25,12 +25,18 @@ public class UserController {
     }
 
    @GetMapping(value = "/homePage")
-   public String index(Model model) {
+   public String dashboard(Model model, HttpSession session) {
 
-        List<Task> taskList = userService.viewAllTasks();
+        List<Task> taskList = userService.viewAllUserTasks((Integer) session.getAttribute("id"));
         model.addAttribute("allTasks", taskList);
+        model.addAttribute("newTask", new TaskDTO());
         return "homePage";
    }
+
+    @GetMapping(value = "/")
+    public String index(Model model, HttpSession session) {
+        return "index";
+    }
     @GetMapping(value = "/login")
     public String loginPage(UserDTO userDTO, Model model) {
         model.addAttribute("user", userDTO);
@@ -43,12 +49,15 @@ public class UserController {
 
         if("successful".equals(message)) {
             User user = userService.getUserByEmail(email);
-            session.setAttribute("user", user);
+            session.setAttribute("id", user.getId());
+            session.setAttribute("email", user.getEmail());
+            session.setAttribute("name", user.getName());
 
-            return "redirect:/homePage";
+
+            return "redirect:/user/homePage";
         } else {
             model.addAttribute("errorMessage", message);
-            return "redirect:/login";
+            return "redirect:/user/login";
         }
     }
 
@@ -59,32 +68,42 @@ public class UserController {
         return "signUp";
     }
 
+    @GetMapping(value = "/logout")
+    public String logout(HttpSession session) {
+        session.removeAttribute("id");
+        session.removeAttribute("email");
+        session.removeAttribute("name");
+        session.invalidate();
+
+        return "redirect:/user/";
+    }
+
     @PostMapping("/signUp")
     public String userRegistration(@ModelAttribute UserDTO userDTo) {
 
         User user = userService.signUp(userDTo);
 
         if(user != null) {
-            return "redirect:/login";
+            return "redirect:/user/login";
         } else {
-            return "redirect:/signUp";
+            return "redirect:/user/signUp";
         }
 
     }
 
     @GetMapping(value = "/task/{status}")
-    public String AllTaskByStatus(@PathVariable(name = "status") String status, Model model) {
-
-        List<Task> taskList = userService.viewTasksByStatus(status);
+    public String AllTaskByStatus(@PathVariable(name = "status") String status, Model model, HttpSession session) {
+        int userId = (int) session.getAttribute("id");
+        List<Task> taskList = userService.viewTasksByStatus(userId, status);
         model.addAttribute("allTasksByStatus", taskList);
-        return "redirect:/AllTaskByStatus";
+        return "AllTaskByStatus";
     }
 
-    @PostMapping("/deleteTask{id}")
+    @PostMapping("/deleteTask/{id}")
     public String deleteTask(@PathVariable(name = "id") int id) {
         userService.deleteTask(id);
 
-        return "redirect:/homePage";
+        return "redirect:/user/homePage";
     }
 
 
@@ -94,35 +113,44 @@ public class UserController {
         Task task = userService.getTaskById(id);
         model.addAttribute("singleTask", task);
         model.addAttribute("taskBody", new TaskDTO());
-        return "redirect:/editPage";
+        return "editPage";
     }
 
     @PostMapping("/editTask{id}")
-    public String editTask(@PathVariable(name = "id") int id, @ModelAttribute TaskDTO taskDto) {
+    public String editTask(@PathVariable(name = "id") String id, @ModelAttribute TaskDTO taskDto) {
+        int taskId = Integer.parseInt(id);
+        userService.editTask(taskDto, taskId);
 
-        userService.editTask(taskDto, id);
-
-        return "redirect:/editPage";
+        return "redirect:/user/homePage";
     }
 
     @GetMapping(value = "/taskCreation")
     public String creatTaskPage(Model model) {
 
         model.addAttribute("newTask", new TaskDTO());
-        return "createTask";
+        return "homePage";
     }
 
     @PostMapping("/createTask")
     public String creatTask(@ModelAttribute TaskDTO taskDTO) {
 
-        Task task = userService.createTask(taskDTO);
+        userService.createTask(taskDTO);
 
-        if (task != null) {
-            return "redirect:/homePage";
-        } else {
-            return "redirect:/createTask";
-        }
+        return "redirect:/user/homePage";
+    }
 
+    @PostMapping(value = "/changeStatus/{id}")
+    public String moveToInProgress(@PathVariable(name = "id")   String id, @RequestParam String status ){
+        int taskId = Integer.parseInt(id);
+        userService.updateTaskStatus(status, taskId);
+        return "redirect:/user/homePage";
+    }
+
+    @PostMapping(value = "/complete/{id}")
+    public String complete(@PathVariable(name = "id")   String id){
+        int taskId = Integer.parseInt(id);
+        userService.markTaskCompleted(taskId);
+        return "redirect:/user/homePage";
     }
 
 

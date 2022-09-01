@@ -23,7 +23,6 @@ public class Task {
 
     private String description;
 
-    @Column(columnDefinition = "varchar(255) default 'pending'")
     private String status;
 
     @CreationTimestamp
@@ -36,6 +35,6 @@ public class Task {
     private LocalDateTime completedAt;
 
     @ManyToOne
-    @JoinColumn(name = "userId", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 }
