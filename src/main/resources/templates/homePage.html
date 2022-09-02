@@ -25,6 +25,23 @@
                     }
                 })
             })
+            $(".show").click(function (e) {
+                e.preventDefault()
+                let taskId = this.getAttribute("data-bs-taskId");
+                let url = this.getAttribute("href")
+                console.log(taskId);
+                $.ajax({
+                    type : "GET",
+                    url : url,
+                    data: {id : taskId},
+
+                    success: function (data){
+                        console.log(data)
+                        $('#singleProduct').modal('show')
+                        $('.singleBody').html(data)
+                    }
+                })
+            })
         })
 
     </script>
@@ -95,7 +112,7 @@
                             Completed
                         </a>
                     </li>
-                    <li class="nav-item nav__item  mt-5"><a class="nav-link" th:href="@{/user/logout}"><i class="bi bi-box-arrow-right"></i>  Logout</a> </li>
+                    <li class="nav-item nav__item  mt-5"><a class="nav-link" th:href="@{/user/logout}"><i class="bi bi-box-arrow-right"></i>Logout</a> </li>
                 </ul>
             </aside>
         </div>
@@ -149,8 +166,9 @@
                                 </div>
                                 <div class="col-2 d-flex">
                                     <a class="edit nav-link" th:href="@{/user/editPage/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-pencil"></i></a>
+                                    <a class="show nav-link" th:href="@{/user/singleTask/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-eye"></i></a>
 
-                                    <i class="bi bi-eye"></i>
+<!--                                    <i class="bi bi-eye"></i>-->
                                 </div>
                             </div>
                         </div>
@@ -184,7 +202,8 @@
                                 </div>
                                 <div class="col-2 d-flex">
                                     <a class="edit nav-link" th:href="@{/user/editPage/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-pencil"></i></a>
-                                    <i class="bi bi-eye"></i>
+                                    <a class="show nav-link" th:href="@{/user/singleTask/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-eye"></i></a>
+<!--                                    <i class="bi bi-eye"></i>-->
                                 </div>
                             </div>
                         </div>
@@ -212,7 +231,8 @@
                                 <div class="col-2 d-flex">
 
                                     <a class="edit nav-link" th:href="@{/user/editPage/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-pencil"></i></a>
-                                    <i class="bi bi-eye"></i>
+                                    <a class="show nav-link" th:href="@{/user/singleTask/{id}(id = ${task.id})}" th:attr="data-bs-taskId=${task.id}"> <i class="bi bi-eye"></i></a>
+<!--                                    <i class="bi bi-eye"></i>-->
                                 </div>
                             </div>
                         </div>

@@ -75,7 +75,7 @@ public class UserController {
         session.removeAttribute("name");
         session.invalidate();
 
-        return "redirect:/user/";
+        return "redirect:/";
     }
 
     @PostMapping("/signUp")
@@ -151,6 +151,14 @@ public class UserController {
         int taskId = Integer.parseInt(id);
         userService.markTaskCompleted(taskId);
         return "redirect:/user/homePage";
+    }
+
+    @GetMapping(value = "/singleTask/{id}")
+    public String getSingleTask(@PathVariable("id") String taskId, Model model) {
+        Task task = userService.getTaskById(Integer.parseInt(taskId));
+        model.addAttribute("task", task);
+
+        return "singleTask";
     }
 
 
