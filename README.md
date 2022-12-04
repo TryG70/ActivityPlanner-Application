@@ -2,7 +2,7 @@
 
 Activity Tracker
 
-Jane is a student who is bad with time management. She needs an application where she can log the activities she needs to do for the day and the time allocated to complete these activities. To help Jane, you are to build an activity tracking application where she can have all the functionalities she wants.
+An application where a user can log the activities he/she needs to do for the day and the time allocated to complete these activities.
 
 Tools
 
